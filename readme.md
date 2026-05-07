@@ -327,3 +327,99 @@ git commit -m "Remove node_modules"
 - **In-memory caching** with timestamps
 - **Promise.all** in React for parallel API calls
 - **Error handling** with `HTTPException`
+
+---
+
+## ⚠️ Mistakes I Made While Pushing to GitHub & How I Fixed Them
+
+### Mistake 1 — `.env` file committed to git
+**What happened:** Ran `git add .` which included `.env` containing the real API key.  
+GitHub blocked the push with `GH013: Repository rule violations — Push cannot contain secrets`.  
+**Fix:**
+```bash
+git rm --cached .env
+python -m git_filter_repo --path .env --invert-paths --force
+git remote add origin https://github.com/USERNAME/REPO.git
+git push -u origin main --force
+```
+Also regenerate your API key immediately after exposing it.
+
+---
+
+### Mistake 2 — `.gitignore` was named `we.gitignore`
+**What happened:** File was named wrong so git never read it — meaning `.env` and `node_modules` were not excluded.  
+**Fix:**
+```bash
+rename we.gitignore .gitignore
+```
+
+---
+
+### Mistake 3 — `node_modules` almost got pushed
+**What happened:** Because `.gitignore` was wrongly named, `node_modules` (200MB+) was being tracked.  
+**Fix:** Always verify before pushing:
+```bash
+git ls-files | findstr node_modules
+```
+If nothing returns → you're safe ✅
+
+---
+
+### Mistake 4 — README was empty on GitHub
+**What happened:** Committed and pushed before saving the file in VSCode. Content was visible on screen but not saved to disk.  
+**Fix:** Always check VSCode tab before pushing:
+- `• README.md` → unsaved ❌  
+- `README.md` → saved ✅
+
+```bash
+git add README.md
+git commit -m "Add README"
+git push
+```
+
+---
+
+### Mistake 5 — Pushed to non-existent repository
+**What happened:** Ran `git push` before creating the repo on GitHub — got `fatal: repository not found`.  
+**Fix:** Always create the repo on GitHub website FIRST, then:
+```bash
+git remote remove origin
+git remote add origin https://github.com/USERNAME/REPO.git
+git push -u origin main
+```
+
+---
+
+### Mistake 6 — `axios` installed in wrong folder
+**What happened:** Ran `npm install axios` in project root instead of inside `frontend/`.  
+**Fix:**
+```bash
+cd frontend
+npm install axios
+```
+
+---
+
+### Mistake 7 — `create-react-app` broke due to typo
+**What happened:** When prompted `Ok to proceed? (y)` typed `y cd frontend` all in one line — broke the installation.  
+**Fix:** When prompted just type `y` and press Enter only. Wait for full completion before typing anything else.
+
+---
+
+### Mistake 8 — Pushed to two repos by accident
+**What happened:** After successful push, ran remote commands again and accidentally pushed to a second repo.  
+**Fix:** After a successful push — stop. Check GitHub first before running more commands. Delete duplicate via GitHub Settings.
+
+---
+
+## ✅ Golden Rules for GitHub
+
+```
+1. Create .gitignore FIRST → then git add .
+2. .env must ALWAYS be in .gitignore  
+3. Check VSCode tab has no • before committing
+4. Create GitHub repo on website BEFORE pushing
+5. npm install always runs INSIDE frontend/
+6. Read the full error before running more commands
+7. One push → check GitHub → then stop
+```
