@@ -8,7 +8,7 @@ app = FastAPI(title="Weather API", description="Current weather + 5 day forecast
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000","weather-project-seven-jet.vercel.app"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
